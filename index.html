@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Integrasi Sheets & GitHub</title>
+</head>
+<body>
+  <h2>Data Pengguna dari Google Sheets</h2>
+  <ul id="data-list">Loading data...</ul>
+
+  <script>
+    // Ganti dengan URL Aplikasi Web dari Google Apps Script Anda
+    const scriptUrl = 'function doGet() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = sheet.getDataRange().getValues();
+  
+  // Mengubah data baris dan kolom menjadi format JSON (Array of Objects)
+  var result = [];
+  var headers = data[0];
+  
+  for (var i = 1; i < data.length; i++) {
+    var row = {};
+    for (var j = 0; j < headers.length; j++) {
+      row[headers[j]] = data[i][j];
+    }
+    result.push(row);
+  }
+  
+  // Mengembalikan data dalam format JSON
+  return ContentService.createTextOutput(JSON.stringify(result))
+    .setMimeType(ContentService.MimeType.JSON);
+}';
+
+    fetch(scriptUrl)
+      .then(response => response.json())
+      .then(data => {
+        const list = document.getElementById('data-list');
+        list.innerHTML = ''; // Hapus teks loading
+        
+        // Looping data dan masukkan ke dalam list HTML
+        data.forEach(item => {
+          let li = document.createElement('li');
+          // 'Nama' dan 'Email' harus sama persis dengan header di Sheets Anda (huruf besar/kecilnya)
+          li.textContent = `${item.Nama} - ${item.Email}`; 
+          list.appendChild(li);
+        });
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('data-list').innerHTML = 'Gagal memuat data.';
+      });
+  </script>
+</body>
+</html>
