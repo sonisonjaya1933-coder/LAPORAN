@@ -52,3 +52,66 @@
   </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Kirim Data ke Sheets</title>
+</head>
+<body>
+  <h2>Formulir Input Data</h2>
+  
+  <!-- Membuat Form Input -->
+  <form id="myForm">
+    <!-- Atribut name="Nama" ini akan ditangkap oleh e.parameter.Nama di Apps Script -->
+    <input type="text" name="Nama" placeholder="Nama Lengkap" required><br><br>
+    
+    <!-- Atribut name="Email" ini akan ditangkap oleh e.parameter.Email di Apps Script -->
+    <input type="email" name="Email" placeholder="Alamat Email" required><br><br>
+    
+    <button type="submit" id="btn-submit">Simpan ke Sheets</button>
+  </form>
+
+  <!-- Tempat untuk menampilkan status pengiriman (loading/sukses/gagal) -->
+  <p id="status-pesan"></p>
+
+  <script>
+    // Masukkan URL Apps Script Anda di sini
+    const scriptUrl = 'URL_APPS_SCRIPT_ANDA';
+    const form = document.getElementById('myForm');
+    const pesan = document.getElementById('status-pesan');
+    const tombol = document.getElementById('btn-submit');
+
+    // Menangkap momen ketika tombol Submit diklik
+    form.addEventListener('submit', e => {
+      e.preventDefault(); // Mencegah halaman web refresh secara otomatis
+
+      // Mengubah teks saat proses pengiriman berlangsung
+      pesan.textContent = "Sedang menyimpan data, mohon tunggu...";
+      tombol.disabled = true; // Mematikan tombol sementara agar tidak diklik 2 kali
+
+      // Mengambil seluruh isian form secara otomatis
+      const formData = new FormData(form);
+
+      // Mengirim data menggunakan fungsi fetch dengan metode POST
+      fetch(scriptUrl, { 
+        method: 'POST', 
+        body: formData 
+      })
+      .then(response => response.text())
+      .then(hasil => {
+        // Jika sukses
+        pesan.textContent = "Berhasil! Data telah masuk ke Google Sheets.";
+        form.reset(); // Mengosongkan form kembali
+        tombol.disabled = false; // Menyalakan tombol kembali
+      })
+      .catch(error => {
+        // Jika gagal
+        pesan.textContent = "Gagal mengirim data. Silakan coba lagi.";
+        console.error('Error!', error.message);
+        tombol.disabled = false;
+      });
+    });
+  </script>
+</body>
+</html>
